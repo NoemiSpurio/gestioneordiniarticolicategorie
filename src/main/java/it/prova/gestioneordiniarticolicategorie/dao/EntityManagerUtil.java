@@ -39,4 +39,10 @@ public class EntityManagerUtil {
 			}
 		}
 	}
+
+	public static void shutdown() {
+		if (entityManagerFactory != null) {
+			entityManagerFactory.close();
+		}
+	}
 }
