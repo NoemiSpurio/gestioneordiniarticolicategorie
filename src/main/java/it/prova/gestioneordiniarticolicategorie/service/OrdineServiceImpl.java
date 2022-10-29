@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.dao.ordine.OrdineDAO;
+import it.prova.gestioneordiniarticolicategorie.exception.OrdineConArticoliAssociatiException;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class OrdineServiceImpl implements OrdineService {
@@ -74,6 +75,9 @@ public class OrdineServiceImpl implements OrdineService {
 			entityManager.getTransaction().begin();
 
 			ordineDao.setEntityManager(entityManager);
+			
+			if (ordineInstance.getArticoli().size() != 0)
+				throw new OrdineConArticoliAssociatiException("Impossibile eliminare: ordine legato ad articoli.");
 
 			ordineDao.delete(ordineInstance);
 

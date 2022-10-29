@@ -1,5 +1,7 @@
 package it.prova.gestioneordiniarticolicategorie.service;
 
+import it.prova.gestioneordiniarticolicategorie.dao.MyDaoFactory;
+
 public class MyServiceFactory {
 
 	private static ArticoloService articoloServiceInstance = null;
@@ -9,18 +11,21 @@ public class MyServiceFactory {
 	public static ArticoloService getArticoloServiceInstance() {
 		if(articoloServiceInstance == null)
 			articoloServiceInstance = new ArticoloServiceImpl();
+		articoloServiceInstance.setArticoloDAO(MyDaoFactory.getArticoloDAOInstance());
 		return articoloServiceInstance;
 	}
 	
 	public static OrdineService getOrdineServiceInstance() {
 		if(ordineServiceInstance == null)
 			ordineServiceInstance = new OrdineServiceImpl();
+		ordineServiceInstance.setOrdineDAO(MyDaoFactory.getOrdineDAOInstance());
 		return ordineServiceInstance;
 	}
 	
 	public static CategoriaService getCategoriaServiceInstance() {
 		if(categoriaServiceInstance == null)
 			categoriaServiceInstance = new CategoriaServiceImpl();
+		categoriaServiceInstance.setCategoriaDAO(MyDaoFactory.getCategoriaDAOInstance());
 		return categoriaServiceInstance;
 	}
 }

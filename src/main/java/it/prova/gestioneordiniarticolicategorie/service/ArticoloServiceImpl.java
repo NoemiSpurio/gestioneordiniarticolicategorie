@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.dao.articolo.ArticoloDAO;
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
+import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 
 public class ArticoloServiceImpl implements ArticoloService {
 	
@@ -74,7 +75,8 @@ public class ArticoloServiceImpl implements ArticoloService {
 			entityManager.getTransaction().begin();
 
 			articoloDAO.setEntityManager(entityManager);
-
+			
+			articoloDAO.deleteCategoria(articoloInstance.getId());
 			articoloDAO.delete(articoloInstance);
 
 			entityManager.getTransaction().commit();
@@ -111,6 +113,49 @@ public class ArticoloServiceImpl implements ArticoloService {
 	@Override
 	public void setArticoloDAO(ArticoloDAO articoloDAO) {
 		this.articoloDAO = articoloDAO;
+	}
+	
+	@Override
+	public void aggiungiCategoria(Articolo articoloInstance, Categoria categoriaInstance) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+		try {
+
+			entityManager.getTransaction().begin();
+
+			articoloDAO.setEntityManager(entityManager);
+
+			categoriaInstance = entityManager.merge(categoriaInstance);
+			articoloInstance = entityManager.merge(articoloInstance);
+
+			articoloInstance.getCategorie().add(categoriaInstance);
+			categoriaInstance.getArticoli().add(articoloInstance);
+
+			entityManager.getTransaction().commit();
+
+		} catch (Exception e) {
+			entityManager.getTransaction().rollback();
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+	
+	@Override
+	public Articolo caricaSingoloElementoEagerCategorie(Long id) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			articoloDAO.setEntityManager(entityManager);
+
+			return articoloDAO.findByIdFetchingCategorie(id);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 	}
 
 }
