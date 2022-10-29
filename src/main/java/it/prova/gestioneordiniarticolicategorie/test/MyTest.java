@@ -1,5 +1,6 @@
 package it.prova.gestioneordiniarticolicategorie.test;
 
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -48,9 +49,24 @@ public class MyTest {
 			testRimozioneArticolo(categoriaServiceInstance, ordineServiceInstance, articoloServiceInstance);
 
 			testRimozioneCategoria(categoriaServiceInstance, ordineServiceInstance, articoloServiceInstance);
-			
+
 			testRimozioneOrdineLegatoArticolo(ordineServiceInstance, articoloServiceInstance);
+
+			testTrovaAllOrdiniPerUnaDataCategoria(categoriaServiceInstance, ordineServiceInstance,
+					articoloServiceInstance);
+
+			testTrovaAllDistinctCategorieInDatoOrdine(categoriaServiceInstance, ordineServiceInstance,
+					articoloServiceInstance);
+
+			testSommaPricesByCategory(categoriaServiceInstance, ordineServiceInstance, articoloServiceInstance);
+
+			testTrovaSpedizionePiuRecentePerDataCategoria(categoriaServiceInstance, ordineServiceInstance,
+					articoloServiceInstance);
+
+			testTrovaCodiciDiCategorieInOrdiniInDatoMeseDatoAnno(categoriaServiceInstance, ordineServiceInstance,
+					articoloServiceInstance);
 			
+			testSommaPricesByDestinatario(ordineServiceInstance, articoloServiceInstance);
 
 			System.out.println(
 					"****************************** fine batteria di test ********************************************");
@@ -191,7 +207,7 @@ public class MyTest {
 		categoriaServiceInstance.aggiungiArticolo(nuovoArticolo, nuovaCategoria);
 		nuovaCategoria = categoriaServiceInstance.caricaSingoloElementoEagerArticoli(nuovaCategoria.getId());
 
-		if (nuovaCategoria.getArticoli().size() == 0)
+		if (nuovaCategoria.getArticoli().size() != 1)
 			throw new RuntimeException("testAggiungiArticoloACategoria failed: aggiunta non andata a buon fine.");
 
 		System.out.println(".......testAggiungiArticoloACategoria fine: PASSED.............");
@@ -270,10 +286,136 @@ public class MyTest {
 			ordineServiceInstance.rimuovi(nuovoOrdine);
 			throw new RuntimeException("testRimozioneOrdineLegatoArticolo failed: rimozione avvenuta.");
 		} catch (OrdineConArticoliAssociatiException e) {
-			
+
 		}
-		
+
 		System.out.println(".......testRimozioneOrdineLegatoArticolo fine: PASSED.............");
+	}
+
+	private static void testTrovaAllOrdiniPerUnaDataCategoria(CategoriaService categoriaServiceInstance,
+			OrdineService ordineServiceInstance, ArticoloService articoloServiceInstance) throws Exception {
+		System.out.println(".......testTrovaAllOrdiniPerUnaDataCategoria inizio.............");
+		Ordine nuovoOrdine = new Ordine("Pinco Pallino", "Via Colombo 101", new Date());
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
+		Articolo nuovoArticolo = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
+		Categoria nuovaCategoria = new Categoria("Oggetti per la casa", "abc123");
+		categoriaServiceInstance.inserisciNuovo(nuovaCategoria);
+
+		categoriaServiceInstance.aggiungiArticolo(nuovoArticolo, nuovaCategoria);
+
+		if (ordineServiceInstance.trovaAllOrdiniPerUnaDataCategoria(nuovaCategoria).size() != 1)
+			throw new RuntimeException("testTrovaAllOrdiniPerUnaDataCategoria failed: numero record inatteso.");
+
+		System.out.println(".......testTrovaAllOrdiniPerUnaDataCategoria fine: PASSED.............");
+	}
+
+	private static void testTrovaAllDistinctCategorieInDatoOrdine(CategoriaService categoriaServiceInstance,
+			OrdineService ordineServiceInstance, ArticoloService articoloServiceInstance) throws Exception {
+		System.out.println(".......testTrovaAllDistinctCategorieInDatoOrdine inizio.............");
+		Ordine nuovoOrdine = new Ordine("Pinco Pallino", "Via Colombo 101", new Date());
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
+		Articolo nuovoArticolo = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
+		Categoria nuovaCategoria = new Categoria("Oggetti per la casa", "abc123");
+		categoriaServiceInstance.inserisciNuovo(nuovaCategoria);
+
+		categoriaServiceInstance.aggiungiArticolo(nuovoArticolo, nuovaCategoria);
+
+		if (ordineServiceInstance.trovaAllDistinctCategorieInDatoOrdine(nuovoOrdine).size() != 1)
+			throw new RuntimeException("testTrovaAllDistinctCategorieInDatoOrdine failed: numero record inatteso.");
+
+		System.out.println(".......testTrovaAllDistinctCategorieInDatoOrdine fine: PASSED.............");
+	}
+
+	private static void testSommaPricesByCategory(CategoriaService categoriaServiceInstance,
+			OrdineService ordineServiceInstance, ArticoloService articoloServiceInstance) throws Exception {
+		System.out.println(".......testSommaPricesByCategory inizio.............");
+		Ordine nuovoOrdine = new Ordine("Pinco Pallino", "Via Colombo 101", new Date());
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
+		Articolo nuovoArticolo = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
+		Categoria nuovaCategoria = new Categoria("Oggetti per la casa", "abc123");
+		categoriaServiceInstance.inserisciNuovo(nuovaCategoria);
+		categoriaServiceInstance.aggiungiArticolo(nuovoArticolo, nuovaCategoria);
+
+		if (articoloServiceInstance.sommaPricesByCategory(nuovaCategoria) != 50)
+			throw new RuntimeException("testSommaPricesByCategory failed: risultato inatteso.");
+
+		System.out.println(".......testSommaPricesByCategory fine: PASSED.............");
+	}
+
+	private static void testTrovaSpedizionePiuRecentePerDataCategoria(CategoriaService categoriaServiceInstance,
+			OrdineService ordineServiceInstance, ArticoloService articoloServiceInstance) throws Exception {
+
+		System.out.println(".......testTrovaSpedizionePiuRecentePerDataCategoria inizio.............");
+		Ordine nuovoOrdine = new Ordine("Pinco Pallino", "Via Colombo 101", new Date());
+		nuovoOrdine.setDataSpedizione(new SimpleDateFormat("dd-MM-yyyy").parse("20-10-2022"));
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
+		Articolo nuovoArticolo = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
+		Categoria nuovaCategoria = new Categoria("Oggetti per la casa", "abc123");
+		categoriaServiceInstance.inserisciNuovo(nuovaCategoria);
+		categoriaServiceInstance.aggiungiArticolo(nuovoArticolo, nuovaCategoria);
+
+		Ordine nuovoOrdine2 = new Ordine("Pinco Pallino", "Via Colombo 101", new Date());
+		nuovoOrdine.setDataSpedizione(new SimpleDateFormat("dd-MM-yyyy").parse("19-10-2022"));
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine2);
+		Articolo nuovoArticolo2 = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine2);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo2);
+		categoriaServiceInstance.aggiungiArticolo(nuovoArticolo2, nuovaCategoria);
+
+		Ordine ordinePiuRecente = ordineServiceInstance.trovaSpedizionePiuRecentePerDataCategoria(nuovaCategoria);
+
+		if (ordinePiuRecente.getId() != nuovoOrdine.getId())
+			throw new RuntimeException("testTrovaSpedizionePiuRecentePerDataCategoria failed: ricerca fallita.");
+
+		System.out.println(".......testTrovaSpedizionePiuRecentePerDataCategoria fine: PASSED.............");
+	}
+
+	private static void testTrovaCodiciDiCategorieInOrdiniInDatoMeseDatoAnno(CategoriaService categoriaServiceInstance,
+			OrdineService ordineServiceInstance, ArticoloService articoloServiceInstance) throws Exception {
+
+		System.out.println(".......testTrovaCodiciDiCategorieInOrdiniInDatoMeseDatoAnno inizio.............");
+		Ordine nuovoOrdine = new Ordine("Pinco Pallino", "Via Colombo 101", new Date());
+		nuovoOrdine.setDataSpedizione(new SimpleDateFormat("dd-MM-yyyy").parse("20-10-1990"));
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
+
+		Articolo nuovoArticolo = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
+		Categoria nuovaCategoria = new Categoria("Oggetti per la casa", "abc123");
+		categoriaServiceInstance.inserisciNuovo(nuovaCategoria);
+		categoriaServiceInstance.aggiungiArticolo(nuovoArticolo, nuovaCategoria);
+
+		Articolo nuovoArticolo2 = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo2);
+		Categoria nuovaCategoria2 = new Categoria("Oggetti per la casa", "cvd123");
+		categoriaServiceInstance.inserisciNuovo(nuovaCategoria2);
+		categoriaServiceInstance.aggiungiArticolo(nuovoArticolo2, nuovaCategoria2);
+
+		Date dataInput = new SimpleDateFormat("dd-MM-yyyy").parse("01-10-1990");
+
+		if (categoriaServiceInstance.trovaCodiciDiCategorieInOrdiniInDatoMeseDatoAnno(dataInput).size() != 2)
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieInOrdiniInDatoMeseDatoAnno failed: numero record inatteso.");
+
+		System.out.println(".......testTrovaCodiciDiCategorieInOrdiniInDatoMeseDatoAnno fine: PASSED.............");
+	}
+
+	private static void testSommaPricesByDestinatario(OrdineService ordineServiceInstance,
+			ArticoloService articoloServiceInstance) throws Exception {
+		
+		System.out.println(".......testSommaPricesByDestinatario inizio.............");
+		
+		Ordine nuovoOrdine = new Ordine("Topolino", "Via Colombo 101", new Date());
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
+		Articolo nuovoArticolo = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
+		
+		if(articoloServiceInstance.sommaPricesByDestinatario("Topolino") != 50)
+			throw new RuntimeException("testSommaPricesByDestinatario failed: risultato inatteso.");
+
+		System.out.println(".......testSommaPricesByDestinatario fine: PASSED.............");
 	}
 
 }

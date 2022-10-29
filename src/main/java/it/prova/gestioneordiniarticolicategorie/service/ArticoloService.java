@@ -24,4 +24,8 @@ public interface ArticoloService {
 	void aggiungiCategoria(Articolo articoloInstance, Categoria categoriaInstance) throws Exception;
 
 	public Articolo caricaSingoloElementoEagerCategorie(Long id) throws Exception;
+	
+	public long sommaPricesByCategory(Categoria categoriaInput) throws Exception;
+	
+	public Long sommaPricesByDestinatario(String destinatarioInput) throws Exception;
 }

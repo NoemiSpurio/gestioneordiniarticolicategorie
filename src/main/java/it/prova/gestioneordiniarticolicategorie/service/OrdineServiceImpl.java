@@ -7,6 +7,7 @@ import javax.persistence.EntityManager;
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.dao.ordine.OrdineDAO;
 import it.prova.gestioneordiniarticolicategorie.exception.OrdineConArticoliAssociatiException;
+import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class OrdineServiceImpl implements OrdineService {
@@ -115,6 +116,54 @@ public class OrdineServiceImpl implements OrdineService {
 	@Override
 	public void setOrdineDAO(OrdineDAO ordineDaoInstance) {
 		this.ordineDao = ordineDaoInstance;
+	}
+	
+	@Override
+	public List<Ordine> trovaAllOrdiniPerUnaDataCategoria(Categoria categoriaInput) throws Exception{
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			ordineDao.setEntityManager(entityManager);
+
+			return ordineDao.findAllOrdiniPerUnaDataCategoria(categoriaInput);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public List<Categoria> trovaAllDistinctCategorieInDatoOrdine(Ordine ordineInput) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			ordineDao.setEntityManager(entityManager);
+
+			return ordineDao.findAllDistinctCategorieInDatoOrdine(ordineInput);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public Ordine trovaSpedizionePiuRecentePerDataCategoria(Categoria categoriaInput) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			ordineDao.setEntityManager(entityManager);
+
+			return ordineDao.findSpedizionePiuRecentePerDataCategoria(categoriaInput);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 	}
 
 }
