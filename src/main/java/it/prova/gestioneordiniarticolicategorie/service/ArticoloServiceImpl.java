@@ -10,7 +10,7 @@ import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 
 public class ArticoloServiceImpl implements ArticoloService {
-	
+
 	private ArticoloDAO articoloDAO;
 
 	@Override
@@ -75,7 +75,7 @@ public class ArticoloServiceImpl implements ArticoloService {
 			entityManager.getTransaction().begin();
 
 			articoloDAO.setEntityManager(entityManager);
-			
+
 			articoloDAO.deleteCategoria(articoloInstance.getId());
 			articoloDAO.delete(articoloInstance);
 
@@ -114,7 +114,7 @@ public class ArticoloServiceImpl implements ArticoloService {
 	public void setArticoloDAO(ArticoloDAO articoloDAO) {
 		this.articoloDAO = articoloDAO;
 	}
-	
+
 	@Override
 	public void aggiungiCategoria(Articolo articoloInstance, Categoria categoriaInstance) throws Exception {
 		EntityManager entityManager = EntityManagerUtil.getEntityManager();
@@ -140,7 +140,7 @@ public class ArticoloServiceImpl implements ArticoloService {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}
 	}
-	
+
 	@Override
 	public Articolo caricaSingoloElementoEagerCategorie(Long id) throws Exception {
 		EntityManager entityManager = EntityManagerUtil.getEntityManager();
@@ -183,6 +183,23 @@ public class ArticoloServiceImpl implements ArticoloService {
 			articoloDAO.setEntityManager(entityManager);
 
 			return articoloDAO.sumPricesByDestinatario(destinatarioInput);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public List<Articolo> trovaAllConDataSpedizioneErrata() throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			articoloDAO.setEntityManager(entityManager);
+
+			return articoloDAO.findAllConDataSpedizioneErrata();
 
 		} catch (Exception e) {
 			e.printStackTrace();

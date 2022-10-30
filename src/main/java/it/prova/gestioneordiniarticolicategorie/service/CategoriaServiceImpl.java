@@ -11,7 +11,7 @@ import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 
 public class CategoriaServiceImpl implements CategoriaService {
-	
+
 	private CategoriaDAO categoriaDao;
 
 	@Override

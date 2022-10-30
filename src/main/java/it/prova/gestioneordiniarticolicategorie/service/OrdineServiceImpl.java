@@ -11,7 +11,7 @@ import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class OrdineServiceImpl implements OrdineService {
-	
+
 	private OrdineDAO ordineDao;
 
 	@Override
@@ -76,7 +76,7 @@ public class OrdineServiceImpl implements OrdineService {
 			entityManager.getTransaction().begin();
 
 			ordineDao.setEntityManager(entityManager);
-			
+
 			if (ordineInstance.getArticoli().size() != 0)
 				throw new OrdineConArticoliAssociatiException("Impossibile eliminare: ordine legato ad articoli.");
 
@@ -117,9 +117,9 @@ public class OrdineServiceImpl implements OrdineService {
 	public void setOrdineDAO(OrdineDAO ordineDaoInstance) {
 		this.ordineDao = ordineDaoInstance;
 	}
-	
+
 	@Override
-	public List<Ordine> trovaAllOrdiniPerUnaDataCategoria(Categoria categoriaInput) throws Exception{
+	public List<Ordine> trovaAllOrdiniPerUnaDataCategoria(Categoria categoriaInput) throws Exception {
 		EntityManager entityManager = EntityManagerUtil.getEntityManager();
 
 		try {
@@ -158,6 +158,22 @@ public class OrdineServiceImpl implements OrdineService {
 			ordineDao.setEntityManager(entityManager);
 
 			return ordineDao.findSpedizionePiuRecentePerDataCategoria(categoriaInput);
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public List<String> trovaIndirizziDoveSerialeArticoliContiene(String contenutoNumeroSeriale) throws Exception {
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			ordineDao.setEntityManager(entityManager);
+
+			return ordineDao.findIndirizziDoveSerialeArticoliContiene(contenutoNumeroSeriale);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw e;

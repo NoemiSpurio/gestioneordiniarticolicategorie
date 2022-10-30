@@ -3,7 +3,6 @@ package it.prova.gestioneordiniarticolicategorie.dao.articolo;
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
@@ -81,6 +80,14 @@ public class ArticoloDAOImpl implements ArticoloDAO {
 				Long.class);
 		query.setParameter(1, destinatarioInput);
 		return query.getSingleResult();
+	}
+
+	@Override
+	public List<Articolo> findAllConDataSpedizioneErrata() throws Exception {
+		TypedQuery<Articolo> query = entityManager.createQuery(
+				"from Articolo a join fetch a.ordine o where o.dataSpedizione > o.dataScadenza and o.dataSpedizione is not null",
+				Articolo.class);
+		return query.getResultList();
 	}
 
 }

@@ -5,7 +5,6 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import it.prova.gestioneordiniarticolicategorie.exception.OrdineConArticoliAssociatiException;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
@@ -77,13 +76,25 @@ public class OrdineDAOImpl implements OrdineDAO {
 	public Ordine findSpedizionePiuRecentePerDataCategoria(Categoria categoriaInput) throws Exception {
 		if (categoriaInput == null)
 			throw new Exception("Problema valore in input");
-		TypedQuery<Ordine> query = entityManager.createQuery(
-				"select o from Ordine o join o.articoli a join a.categorie c where c = ?1 and "
-				+ "o.dataSpedizione = (select max(o.dataSpedizione) from Ordine o join o.articoli a join a.categorie c "
-				+ "where c = ?2)", Ordine.class);
+		TypedQuery<Ordine> query = entityManager
+				.createQuery("select o from Ordine o join o.articoli a join a.categorie c where c = ?1 and "
+						+ "o.dataSpedizione = (select max(o.dataSpedizione) from Ordine o join o.articoli a join a.categorie c "
+						+ "where c = ?2)", Ordine.class);
 		query.setParameter(1, categoriaInput);
 		query.setParameter(2, categoriaInput);
 		return query.getResultList().get(0);
+	}
+
+	@Override
+	public List<String> findIndirizziDoveSerialeArticoliContiene(String contenutoNumeroSeriale) throws Exception {
+		if (contenutoNumeroSeriale == null)
+			throw new Exception("Problema valore in input");
+		TypedQuery<String> query = entityManager.createQuery(
+				"select distinct o.indirizzoDiSpedizione from Ordine o join o.articoli a where a.numeroSeriale like ?1",
+				String.class);
+		String parametroSeriale = "%" + contenutoNumeroSeriale + "%";
+		query.setParameter(1, parametroSeriale);
+		return query.getResultList();
 	}
 
 }

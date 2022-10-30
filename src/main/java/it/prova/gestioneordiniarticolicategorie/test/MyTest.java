@@ -1,10 +1,7 @@
 package it.prova.gestioneordiniarticolicategorie.test;
 
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
-import java.util.Set;
 
 import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.exception.OrdineConArticoliAssociatiException;
@@ -65,8 +62,12 @@ public class MyTest {
 
 			testTrovaCodiciDiCategorieInOrdiniInDatoMeseDatoAnno(categoriaServiceInstance, ordineServiceInstance,
 					articoloServiceInstance);
-			
+
 			testSommaPricesByDestinatario(ordineServiceInstance, articoloServiceInstance);
+
+			testTrovaIndirizziDoveSerialeArticoliContiene(ordineServiceInstance, articoloServiceInstance);
+
+			testTrovaAllConDataSpedizioneErrata(ordineServiceInstance, articoloServiceInstance);
 
 			System.out.println(
 					"****************************** fine batteria di test ********************************************");
@@ -359,7 +360,7 @@ public class MyTest {
 		categoriaServiceInstance.aggiungiArticolo(nuovoArticolo, nuovaCategoria);
 
 		Ordine nuovoOrdine2 = new Ordine("Pinco Pallino", "Via Colombo 101", new Date());
-		nuovoOrdine.setDataSpedizione(new SimpleDateFormat("dd-MM-yyyy").parse("19-10-2022"));
+		nuovoOrdine.setDataSpedizione(new SimpleDateFormat("dd-MM-yyyy").parse("19-10-2021"));
 		ordineServiceInstance.inserisciNuovo(nuovoOrdine2);
 		Articolo nuovoArticolo2 = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine2);
 		articoloServiceInstance.inserisciNuovo(nuovoArticolo2);
@@ -404,18 +405,51 @@ public class MyTest {
 
 	private static void testSommaPricesByDestinatario(OrdineService ordineServiceInstance,
 			ArticoloService articoloServiceInstance) throws Exception {
-		
+
 		System.out.println(".......testSommaPricesByDestinatario inizio.............");
-		
+
 		Ordine nuovoOrdine = new Ordine("Topolino", "Via Colombo 101", new Date());
 		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
 		Articolo nuovoArticolo = new Articolo("Sedia", "ABC123", 50, new Date(), nuovoOrdine);
 		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
-		
-		if(articoloServiceInstance.sommaPricesByDestinatario("Topolino") != 50)
+
+		if (articoloServiceInstance.sommaPricesByDestinatario("Topolino") != 50)
 			throw new RuntimeException("testSommaPricesByDestinatario failed: risultato inatteso.");
 
 		System.out.println(".......testSommaPricesByDestinatario fine: PASSED.............");
+	}
+
+	private static void testTrovaIndirizziDoveSerialeArticoliContiene(OrdineService ordineServiceInstance,
+			ArticoloService articoloServiceInstance) throws Exception {
+		System.out.println(".......testTrovaIndirizziDoveSerialeArticoliContiene inizio.............");
+
+		Ordine nuovoOrdine = new Ordine("Topolino", "Via Colombo 101", new Date());
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
+		Articolo nuovoArticolo = new Articolo("Sedia", "asdht123", 50, new Date(), nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
+
+		if (ordineServiceInstance.trovaIndirizziDoveSerialeArticoliContiene("ht").size() != 1)
+			throw new RuntimeException("testTrovaIndirizziDoveSerialeArticoliContiene failed: numero record inatteso.");
+
+		System.out.println(".......testTrovaIndirizziDoveSerialeArticoliContiene fine: PASSED.............");
+	}
+
+	private static void testTrovaAllConDataSpedizioneErrata(OrdineService ordineServiceInstance,
+			ArticoloService articoloServiceInstance) throws Exception {
+
+		System.out.println(".......testTrovaAllConDataSpedizioneErrata inizio.............");
+		Ordine nuovoOrdine = new Ordine("Topolino", "Via Colombo 101", new Date());
+		nuovoOrdine.setDataSpedizione(new SimpleDateFormat("dd-MM-yyyy").parse("01-01-2100"));
+		ordineServiceInstance.inserisciNuovo(nuovoOrdine);
+		Articolo nuovoArticolo = new Articolo("Sedia", "asd123", 50, new Date(), nuovoOrdine);
+		articoloServiceInstance.inserisciNuovo(nuovoArticolo);
+
+		System.out.println(articoloServiceInstance.trovaAllConDataSpedizioneErrata().size());
+
+		if (articoloServiceInstance.trovaAllConDataSpedizioneErrata().size() != 1)
+			throw new RuntimeException("testTrovaAllConDataSpedizioneErrata failed: numero record inatteso.");
+
+		System.out.println(".......testTrovaAllConDataSpedizioneErrata fine: PASSED.............");
 	}
 
 }
